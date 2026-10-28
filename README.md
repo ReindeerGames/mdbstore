@@ -12,7 +12,8 @@ The module path is `github.com/ReindeerGames/mdbstore`.
 
 ## Compatibility
 
-- Go 1.26 or newer.
+- Go 1.26.10 or newer. Earlier Go 1.26 patch releases contain standard-library
+  vulnerabilities reachable through TLS certificate verification.
 - MariaDB 11.4 LTS is continuously tested. MySQL is intentionally rejected
   because its behavior is not part of this adapter's compatibility contract.
 - Hypermeow commit `7852ff1c171870a1fe43ce366799a00385572fd9` is pinned and
