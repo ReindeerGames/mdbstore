@@ -1,0 +1,13 @@
+mdbstore includes adapted source from github.com/polymorfa/hypermeow/store/sqlstore.
+
+The adapted files container.go, store.go, and lidmap.go retain their original
+copyright and Mozilla Public License 2.0 notices. Hypermeow is a fork of
+Whatsmeow and its upstream-derived files are licensed under MPL-2.0.
+
+The upstream-derived test files upstream_identity_reader_test.go,
+upstream_lidmap_test.go, and upstream_store_test.go are licensed under the MIT
+License. See LICENSE-MIT.
+
+This project is not affiliated with, authorized by, or endorsed by WhatsApp or
+Meta. WhatsApp is a trademark of its respective owner.
+

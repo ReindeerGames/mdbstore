@@ -1,0 +1,50 @@
+name: ci
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        mariadb: ["10.11", "11.4"]
+    services:
+      mariadb:
+        image: mariadb:${{ matrix.mariadb }}
+        env:
+          MARIADB_ROOT_PASSWORD: root-test-password
+          MARIADB_DATABASE: mdbstore_test
+          MARIADB_USER: mdbstore
+          MARIADB_PASSWORD: mdbstore-test-password
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+          cache: true
+      - name: Unit and MariaDB integration tests
+        env:
+          MDBSTORE_TEST_DSN: mdbstore:mdbstore-test-password@tcp(127.0.0.1:3306)/mdbstore_test
+        run: go test -race -coverpkg=./... -coverprofile=coverage.out ./...
+      - name: Enforce coverage floor
+        run: |
+          coverage=$(go tool cover -func=coverage.out | awk '/^total:/ {gsub("%", "", $3); print $3}')
+          awk -v coverage="$coverage" 'BEGIN { if (coverage < 60) exit 1 }'
+      - name: Static analysis
+        run: |
+          go vet ./...
+          go run honnef.co/go/tools/cmd/staticcheck@v0.8.2 ./...
+      - name: Module consistency
+        run: |
+          go mod verify
+          go mod tidy -diff
+      - name: Reachable vulnerability scan
+        run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+
